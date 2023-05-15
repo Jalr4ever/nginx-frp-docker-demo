@@ -1,0 +1,71 @@
+version: '3'
+services:
+  nginx_1:
+    container_name: n1_nginx
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./conf1/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8001:80"
+    user: "root"
+    privileged: true
+    networks:
+      subnet_private:
+        ipv4_address: 178.20.0.10
+
+  nginx_2:
+    container_name: n2_nginx
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./conf2/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8002:80"
+    user: "root"
+    privileged: true
+    networks:
+      subnet_private:
+        ipv4_address: 178.20.0.20
+ 
+  frp-server:
+    image: "fatedier/frps:v0.37.1"
+    ports:
+      - "7200:7200"
+      - "7500:7500"
+      - "18001:81"
+      - "18002:82"
+    volumes:
+      - ./frps.ini:/etc/frp/frps.ini
+    command: ["-c", "/etc/frp/frps.ini"]
+    working_dir: /etc/frp
+    networks:
+      subnet_private:
+        ipv4_address: 178.20.0.30
+    depends_on:
+      - nginx_1
+      - nginx_2
+
+  frp-client:
+    image: "fatedier/frpc:v0.37.1"
+    volumes:
+      - ./frpc.ini:/etc/frp/frpc.ini
+    command: ["-c", "/etc/frp/frpc.ini"]
+    working_dir: /etc/frp
+    networks:
+      subnet_private:
+        ipv4_address: 178.20.0.40
+    depends_on:
+      - nginx_1
+      - nginx_2
+      - frp-server
+
+networks:
+  subnet_private:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 178.20.0.0/24
+
