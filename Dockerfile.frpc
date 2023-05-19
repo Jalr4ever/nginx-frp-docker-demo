@@ -1,0 +1,18 @@
+FROM fatedier/frpc:v0.37.1
+
+# Install iptables and su-exec
+RUN apk update && \
+    apk add iptables && \
+    apk add su-exec
+
+# Copy the script to the container
+COPY entrypoint-frpc.sh /entrypoint.sh
+
+# Set executable permissions on the script
+RUN chmod +x /entrypoint.sh
+
+# Running nginx with the script as the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["sh", "-c", "exec frpc -c /etc/frp/frpc.ini"]
+
+

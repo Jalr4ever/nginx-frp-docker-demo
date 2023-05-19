@@ -49,11 +49,14 @@ services:
       - nginx_2
 
   frp-client:
-    image: "fatedier/frpc:v0.37.1"
+    build:
+      context: ./
+      dockerfile: ./Dockerfile.frpc
     volumes:
       - ./frpc.ini:/etc/frp/frpc.ini
-    command: ["-c", "/etc/frp/frpc.ini"]
     working_dir: /etc/frp
+    user: "root"
+    privileged: true
     networks:
       subnet_private:
         ipv4_address: 178.20.0.40
@@ -61,7 +64,6 @@ services:
       - nginx_1
       - nginx_2
       - frp-server
-
 networks:
   subnet_private:
     driver: bridge
