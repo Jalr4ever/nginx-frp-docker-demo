@@ -7,7 +7,7 @@ iptables -X
 # Set default policy to drop all incoming traffic
 iptables -P INPUT DROP
 
-# Set default policy to allow all outgoing traffic
+# Set default policy to drop all outgoing traffic
 iptables -P OUTPUT DROP
 
 # Allow traffic to frps 7200 port & application port 80
